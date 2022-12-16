@@ -10,15 +10,15 @@ const int SYMBOL_TOKEN_CLASS_COUNT = 9;  // количество символь�
 
 /* структура "символьная лексема" */
 struct SymbolicToken {
-	SymbolicTokenClass token_class; 	// класс лексемы
-	int 			   value;			// значение лексемы
+	SymbolicTokenClass   token_class; 	// класс лексемы
+	int 			   value;	// значение лексемы
 };
 
 /* перечисление классов лексем стекового языка */
-enum TokenClass { Push, Pop, Jmp, Ji, Read, Write, End,	// ключевые слова : push, pop, jmp, ji, read, write, end
-				  ArithmeticOp, CmpOp,					// арифметическая операция, операция сравнения
-				  Atpow, Deg, Derivative, Value,        // ключевые слова : atpow, deg, derivative, value
-				  Comment, Error, EndOfFile 			// комментарий, ошибка, конец файла
+enum TokenClass { Push, Pop, Jmp, Ji, Read, Write, End, // ключевые слова : push, pop, jmp, ji, read, write, end
+		  ArithmeticOp, CmpOp,		 	// арифметическая операция, операция сравнения
+		  Atpow, Deg, Derivative, Value, 	// ключевые слова : atpow, deg, derivative, value
+		  Comment, Error, EndOfFile 	 	// комментарий, ошибка, конец файла
 				};
 
 /* перечисление операций (и отдельных символов) сравнения 
@@ -33,7 +33,7 @@ enum CmpValue { Negation, Equal, NotEqual, Less, LessOrEqual, Bigger, BiggerOrEq
 struct Token {
 	TokenClass    token_class;  // класс лексемы
 	int           value;	    // значени лексемы
-	int           line;			// номер строки
+	int           line;	    // номер строки
 
 	
 	Token() = default;
@@ -41,7 +41,7 @@ struct Token {
 	Token(TokenClass tc, int v, int l) {
 		token_class = tc;
 		value       = v;
-		line 		= l;
+		line 	    = l;
 	}
 };
 
@@ -91,7 +91,7 @@ enum class ObjectType { Variable, Constant };
 
 /* структура "имя объекта" */
 struct ObjectName {
-	ObjectType 		type;			// тип объекта      : константа или переменная
+	ObjectType 		type;		// тип объекта      : константа или переменная
 	void* 			name_pointer;	// указатель на имя : на строку или число
 
 	/* конструктор с параметрами */
@@ -115,16 +115,16 @@ std::ostream& operator <<(std::ostream& stream, ObjectName object_name) {
 /*  класс "Обработанная программа" 
 *
 * 	состоит из имени программы,
-* 			вектора лексем, выделенных анализатором
-* 			и таблицы имён, построенной анализатором;
+* 	вектора лексем, выделенных анализатором
+* 	и таблицы имён, построенной анализатором;
 *
 *	ананлизатор возвращает объект этого типа, после окончания обработки прогрмаммы
 */
 class ParsedProgram {
 private:
-	const char*				program_name;		// имя программы
-	std::vector<Token> 		      tokens;		// вектор лексем
-	std::vector<ObjectName>   name_table;		// таблица имён
+	const char*			program_name;	// имя программы
+	std::vector<Token> 		      tokens;	// вектор лексем
+	std::vector<ObjectName>   	  name_table;	// таблица имён
 
 	friend class Interpreter;
 public:
@@ -154,7 +154,7 @@ public:
 		for (auto& name : name_table) {
 			switch (name.type) {
 			case ObjectType::Variable: delete (std::string*)name.name_pointer; break;
-			case ObjectType::Constant: delete (int*)name.name_pointer; 		   break;
+			case ObjectType::Constant: delete (int*)name.name_pointer; 	   break;
 			}
 		}
 	}
@@ -205,18 +205,18 @@ public:
 };
 
 /* перечисление состояний автомата */
-enum State { s_A1, s_A2,		// поиск новой лексемы
-			 s_B1,				// считывание ключевого слова
-			 s_C1,				// считывание строки до конца или комментария после правильной команды
-			 s_D1,				// считывание операции сравнения
-			 s_E1, s_E2, s_E3,  // считывание пробелоа после ключевого слова, после которого нужен аргумент
-			 s_F1, s_F2, s_F3,  // считывание пробелов до константы или перемнной после ключевого слова
-			 s_G1,				// считывание константы
-			 s_H1,				// считывание переменной
-			 s_I1, s_I2,		// считывание комментария
-			 s_J1,				// считывание строки до конца после ошибки
-			 s_Stop			    // остановка
-		    };
+enum State { s_A1, s_A2,			// поиск новой лексемы
+	     s_B1,				// считывание ключевого слова
+	     s_C1,				// считывание строки до конца или комментария после правильной команды
+	     s_D1,				// считывание операции сравнения
+             s_E1, s_E2, s_E3,  		// считывание пробелоа после ключевого слова, после которого нужен аргумент
+	     s_F1, s_F2, s_F3,  		// считывание пробелов до константы или перемнной после ключевого слова
+	     s_G1,				// считывание константы
+	     s_H1,				// считывание переменной
+	     s_I1, s_I2,			// считывание комментария
+	     s_J1,				// считывание строки до конца после ошибки
+	     s_Stop		   	        // остановка
+	    };
 const int STATES_COUNT = 16;    // количество состояний автомата (без s_Stop)
 
 /* класс "лексический анализатор" */
@@ -284,8 +284,8 @@ private:
 		tokens.push_back(Token(token_class, token_value, line_number));
 	}
 	/* процедура СОЗДАТЬ_КОНСТАНТУ : проверить нет ли такой константы в таблице имён
-	*								 если есть, то поменять регистр указателя, чтобы он указывал на уже существующий объект
-	*								 если нет, 	то добавить и поменять регистр указателя, чтобы он указывал на новый объект
+	*				 если есть, то поменять регистр указателя, чтобы он указывал на уже существующий объект
+	*				 если нет,  то добавить и поменять регистр указателя, чтобы он указывал на новый объект
 	*/
 	void add_constant() {
 		for(int i = 0; i < name_table.size(); ++i) {
@@ -302,8 +302,8 @@ private:
 		name_table_index = name_table.size() - 1;
 	}
 	/* процедура СОЗДАТЬ_ПЕРЕМЕННУЮ проверить нет ли такой переменной в таблице имён
-	*								если есть, то поменять регистр указателя, чтобы он указывал на уже существующий объект
-	*								если нет,  то добавить и поменять регистр указателя, чтобы он указывал на новый объект
+	*		                если есть, то поменять регистр указателя, чтобы он указывал на уже существующий объект
+	*				если нет,  то добавить и поменять регистр указателя, чтобы он указывал на новый объект
 	*/
 	void add_variable() {
 		for(int i = 0; i < name_table.size(); ++i) {
@@ -696,31 +696,31 @@ public:
 			}
 		}
 
-		procedure_table[s_A1][Letter] = &Parser::B1a;	procedure_table[s_F1][Digit] = &Parser::G1a;				procedure_table[s_A1][Arithmetic] = &Parser::C1a;
-		procedure_table[s_A2][Letter] = &Parser::B1a;	procedure_table[s_F2][Digit] = &Parser::G1a;				procedure_table[s_A2][Arithmetic] = &Parser::C1a;
-		procedure_table[s_B1][Letter] = &Parser::M1; 	procedure_table[s_G1][Digit] = &Parser::G1b;				procedure_table[s_A1][Arithmetic] = &Parser::C1a;
-		procedure_table[s_F1][Letter] = &Parser::H1a;	procedure_table[s_H1][Digit] = &Parser::H1b;				procedure_table[s_I1][Arithmetic] = &Parser::I1;	
-		procedure_table[s_F3][Letter] = &Parser::H1a;	procedure_table[s_I1][Digit] = &Parser::I1;					procedure_table[s_I2][Arithmetic] = &Parser::I2;	
-		procedure_table[s_H1][Letter] = &Parser::H1b;	procedure_table[s_I2][Digit] = &Parser::I2;					procedure_table[s_J1][Arithmetic] = &Parser::J1;	
+		procedure_table[s_A1][Letter] = &Parser::B1a;	procedure_table[s_F1][Digit] = &Parser::G1a;			procedure_table[s_A1][Arithmetic] = &Parser::C1a;
+		procedure_table[s_A2][Letter] = &Parser::B1a;	procedure_table[s_F2][Digit] = &Parser::G1a;			procedure_table[s_A2][Arithmetic] = &Parser::C1a;
+		procedure_table[s_B1][Letter] = &Parser::M1; 	procedure_table[s_G1][Digit] = &Parser::G1b;			procedure_table[s_A1][Arithmetic] = &Parser::C1a;
+		procedure_table[s_F1][Letter] = &Parser::H1a;	procedure_table[s_H1][Digit] = &Parser::H1b;			procedure_table[s_I1][Arithmetic] = &Parser::I1;	
+		procedure_table[s_F3][Letter] = &Parser::H1a;	procedure_table[s_I1][Digit] = &Parser::I1;			procedure_table[s_I2][Arithmetic] = &Parser::I2;	
+		procedure_table[s_H1][Letter] = &Parser::H1b;	procedure_table[s_I2][Digit] = &Parser::I2;			procedure_table[s_J1][Arithmetic] = &Parser::J1;	
 		procedure_table[s_I1][Letter] = &Parser::I1;	procedure_table[s_J1][Digit] = &Parser::J1;	
 		procedure_table[s_I2][Letter] = &Parser::I2;
 		procedure_table[s_J1][Letter] = &Parser::J1;
 
-		procedure_table[s_A1][Cmp] = &Parser::D1a;		procedure_table[s_A1][Space] = &Parser::A1;					procedure_table[s_A1][LF] = &Parser::A1b;
-		procedure_table[s_A2][Cmp] = &Parser::D1a;		procedure_table[s_A2][Space] = &Parser::A2;					procedure_table[s_A2][LF] = &Parser::A2a;
-		procedure_table[s_D1][Cmp] = &Parser::C1h;		procedure_table[s_C1][Space] = &Parser::C1;					procedure_table[s_B1][LF] = &Parser::A2f;
-		procedure_table[s_I1][Cmp] = &Parser::I1;		procedure_table[s_D1][Space] = &Parser::C1g;				procedure_table[s_C1][LF] = &Parser::A2a;
-		procedure_table[s_I2][Cmp] = &Parser::I2;		procedure_table[s_E1][Space] = &Parser::F1;					procedure_table[s_D1][LF] = &Parser::A2e;
-		procedure_table[s_J1][Cmp] = &Parser::J1;		procedure_table[s_E2][Space] = &Parser::F2;					procedure_table[s_E1][LF] = &Parser::A2f;
-														procedure_table[s_E3][Space] = &Parser::F3;					procedure_table[s_E2][LF] = &Parser::A2f;
-														procedure_table[s_F1][Space] = &Parser::F1;					procedure_table[s_E3][LF] = &Parser::A2f;
-														procedure_table[s_F2][Space] = &Parser::F2;					procedure_table[s_F1][LF] = &Parser::A2f;
-														procedure_table[s_F3][Space] = &Parser::F3;					procedure_table[s_F2][LF] = &Parser::A2f;
-														procedure_table[s_G1][Space] = &Parser::C1e;				procedure_table[s_F3][LF] = &Parser::A2f;
-														procedure_table[s_H1][Space] = &Parser::C1f;				procedure_table[s_G1][LF] = &Parser::A2c;
-														procedure_table[s_I1][Space] = &Parser::I1;					procedure_table[s_H1][LF] = &Parser::A2d;
-														procedure_table[s_I2][Space] = &Parser::I2;					procedure_table[s_I1][LF] = &Parser::A1a;
-														procedure_table[s_J1][Space] = &Parser::J1;					procedure_table[s_I2][LF] = &Parser::A2b;
+		procedure_table[s_A1][Cmp] = &Parser::D1a;	procedure_table[s_A1][Space] = &Parser::A1;			procedure_table[s_A1][LF] = &Parser::A1b;
+		procedure_table[s_A2][Cmp] = &Parser::D1a;	procedure_table[s_A2][Space] = &Parser::A2;			procedure_table[s_A2][LF] = &Parser::A2a;
+		procedure_table[s_D1][Cmp] = &Parser::C1h;	procedure_table[s_C1][Space] = &Parser::C1;			procedure_table[s_B1][LF] = &Parser::A2f;
+		procedure_table[s_I1][Cmp] = &Parser::I1;	procedure_table[s_D1][Space] = &Parser::C1g;    		procedure_table[s_C1][LF] = &Parser::A2a;
+		procedure_table[s_I2][Cmp] = &Parser::I2;	procedure_table[s_E1][Space] = &Parser::F1;			procedure_table[s_D1][LF] = &Parser::A2e;
+		procedure_table[s_J1][Cmp] = &Parser::J1;	procedure_table[s_E2][Space] = &Parser::F2;			procedure_table[s_E1][LF] = &Parser::A2f;
+								procedure_table[s_E3][Space] = &Parser::F3;			procedure_table[s_E2][LF] = &Parser::A2f;
+								procedure_table[s_F1][Space] = &Parser::F1;			procedure_table[s_E3][LF] = &Parser::A2f;
+								procedure_table[s_F2][Space] = &Parser::F2;			procedure_table[s_F1][LF] = &Parser::A2f;
+								procedure_table[s_F3][Space] = &Parser::F3;			procedure_table[s_F2][LF] = &Parser::A2f;
+								procedure_table[s_G1][Space] = &Parser::C1e;			procedure_table[s_F3][LF] = &Parser::A2f;
+								procedure_table[s_H1][Space] = &Parser::C1f;			procedure_table[s_G1][LF] = &Parser::A2c;
+								procedure_table[s_I1][Space] = &Parser::I1;			procedure_table[s_H1][LF] = &Parser::A2d;
+								procedure_table[s_I2][Space] = &Parser::I2;			procedure_table[s_I1][LF] = &Parser::A1a;
+								procedure_table[s_J1][Space] = &Parser::J1;			procedure_table[s_I2][LF] = &Parser::A2b;
 																													procedure_table[s_J1][LF] = &Parser::A2a;
 
 		procedure_table[s_A1][SemiCol] = &Parser::I1a;	procedure_table[s_A2][EndOfFileSymbol] = &Parser::Exit1;	procedure_table[s_I1][Other] = &Parser::I1;
@@ -757,51 +757,51 @@ public:
 		{
 			detection_table.table[i].alt = -1;
 		}
-		detection_table.table[0].letter =  'n';											detection_table.table[0].procedure = &Parser::B1b;
-		detection_table.table[1].letter =  'd';											detection_table.table[1].procedure = &Parser::C1b;
+		detection_table.table[0].letter =  'n';							detection_table.table[0].procedure = &Parser::B1b;
+		detection_table.table[1].letter =  'd';							detection_table.table[1].procedure = &Parser::C1b;
 												// end
 		detection_table.table[2].letter =  'i';		detection_table.table[2].alt = 3;	detection_table.table[2].procedure = &Parser::E2a;
 												// ji
-		detection_table.table[3].letter =  'm';											detection_table.table[3].procedure = &Parser::B1b;
-		detection_table.table[4].letter =  'p';											detection_table.table[4].procedure = &Parser::E2b;
+		detection_table.table[3].letter =  'm';							detection_table.table[3].procedure = &Parser::B1b;
+		detection_table.table[4].letter =  'p';							detection_table.table[4].procedure = &Parser::E2b;
 												// jmp
 		detection_table.table[5].letter =  'o';		detection_table.table[5].alt = 7;	detection_table.table[5].procedure = &Parser::B1b;
-		detection_table.table[6].letter =  'p';											detection_table.table[6].procedure = &Parser::E3a;
+		detection_table.table[6].letter =  'p';							detection_table.table[6].procedure = &Parser::E3a;
 												// pop
-		detection_table.table[7].letter =  'u';											detection_table.table[7].procedure = &Parser::B1b;
-		detection_table.table[8].letter =  's';											detection_table.table[8].procedure = &Parser::B1b;
-		detection_table.table[9].letter =  'h';											detection_table.table[9].procedure = &Parser::E1a;
+		detection_table.table[7].letter =  'u';							detection_table.table[7].procedure = &Parser::B1b;
+		detection_table.table[8].letter =  's';							detection_table.table[8].procedure = &Parser::B1b;
+		detection_table.table[9].letter =  'h';							detection_table.table[9].procedure = &Parser::E1a;
 												// push
-		detection_table.table[10].letter = 'e';											detection_table.table[10].procedure = &Parser::B1b;
-		detection_table.table[11].letter = 'a';											detection_table.table[11].procedure = &Parser::B1b;
-		detection_table.table[12].letter = 'd';											detection_table.table[12].procedure = &Parser::C1c;
+		detection_table.table[10].letter = 'e';							detection_table.table[10].procedure = &Parser::B1b;
+		detection_table.table[11].letter = 'a';							detection_table.table[11].procedure = &Parser::B1b;
+		detection_table.table[12].letter = 'd';							detection_table.table[12].procedure = &Parser::C1c;
 												// read
-		detection_table.table[13].letter = 'r';											detection_table.table[13].procedure = &Parser::B1b;
-		detection_table.table[14].letter = 'i';											detection_table.table[14].procedure = &Parser::B1b;
-		detection_table.table[15].letter = 't';											detection_table.table[15].procedure = &Parser::B1b;
-		detection_table.table[16].letter = 'e';											detection_table.table[16].procedure = &Parser::C1d;
+		detection_table.table[13].letter = 'r';							detection_table.table[13].procedure = &Parser::B1b;
+		detection_table.table[14].letter = 'i';							detection_table.table[14].procedure = &Parser::B1b;
+		detection_table.table[15].letter = 't';							detection_table.table[15].procedure = &Parser::B1b;
+		detection_table.table[16].letter = 'e';							detection_table.table[16].procedure = &Parser::C1d;
 												// write
-		detection_table.table[17].letter = 't';											detection_table.table[17].procedure = &Parser::B1b;
-		detection_table.table[18].letter = 'p';											detection_table.table[18].procedure = &Parser::B1b;
-		detection_table.table[19].letter = 'o';											detection_table.table[19].procedure = &Parser::B1b;
-		detection_table.table[20].letter = 'w';											detection_table.table[20].procedure = &Parser::C1i;
+		detection_table.table[17].letter = 't';							detection_table.table[17].procedure = &Parser::B1b;
+		detection_table.table[18].letter = 'p';							detection_table.table[18].procedure = &Parser::B1b;
+		detection_table.table[19].letter = 'o';							detection_table.table[19].procedure = &Parser::B1b;
+		detection_table.table[20].letter = 'w';							detection_table.table[20].procedure = &Parser::C1i;
 												// atpow
-		detection_table.table[21].letter = 'e';											detection_table.table[21].procedure = &Parser::B1b;
-		detection_table.table[22].letter = 'g';		detection_table.table[22].alt = 23; detection_table.table[22].procedure = &Parser::C1j;
+		detection_table.table[21].letter = 'e';							detection_table.table[21].procedure = &Parser::B1b;
+		detection_table.table[22].letter = 'g';		detection_table.table[22].alt = 23; 	detection_table.table[22].procedure = &Parser::C1j;
 												// deg
-		detection_table.table[23].letter = 'r';											detection_table.table[23].procedure = &Parser::B1b;
-		detection_table.table[24].letter = 'i';											detection_table.table[24].procedure = &Parser::B1b;
-		detection_table.table[25].letter = 'v';											detection_table.table[25].procedure = &Parser::B1b;
-		detection_table.table[26].letter = 'a';											detection_table.table[26].procedure = &Parser::B1b;
-		detection_table.table[27].letter = 't';											detection_table.table[27].procedure = &Parser::B1b;
-		detection_table.table[28].letter = 'i';											detection_table.table[28].procedure = &Parser::B1b;
-		detection_table.table[29].letter = 'v';											detection_table.table[29].procedure = &Parser::B1b;
-		detection_table.table[30].letter = 'e';											detection_table.table[30].procedure = &Parser::C1k;
+		detection_table.table[23].letter = 'r';							detection_table.table[23].procedure = &Parser::B1b;
+		detection_table.table[24].letter = 'i';							detection_table.table[24].procedure = &Parser::B1b;
+		detection_table.table[25].letter = 'v';							detection_table.table[25].procedure = &Parser::B1b;
+		detection_table.table[26].letter = 'a';							detection_table.table[26].procedure = &Parser::B1b;
+		detection_table.table[27].letter = 't';							detection_table.table[27].procedure = &Parser::B1b;
+		detection_table.table[28].letter = 'i';							detection_table.table[28].procedure = &Parser::B1b;
+		detection_table.table[29].letter = 'v';							detection_table.table[29].procedure = &Parser::B1b;
+		detection_table.table[30].letter = 'e';							detection_table.table[30].procedure = &Parser::C1k;
 												// derivative
-		detection_table.table[31].letter = 'a';											detection_table.table[31].procedure = &Parser::B1b;
-		detection_table.table[32].letter = 'l';											detection_table.table[32].procedure = &Parser::B1b;
-		detection_table.table[33].letter = 'u';											detection_table.table[33].procedure = &Parser::B1b;
-		detection_table.table[34].letter = 'e';											detection_table.table[34].procedure = &Parser::C1l;
+		detection_table.table[31].letter = 'a';							detection_table.table[31].procedure = &Parser::B1b;
+		detection_table.table[32].letter = 'l';							detection_table.table[32].procedure = &Parser::B1b;
+		detection_table.table[33].letter = 'u';							detection_table.table[33].procedure = &Parser::B1b;
+		detection_table.table[34].letter = 'e';							detection_table.table[34].procedure = &Parser::C1l;
 												// value
 	}
 
@@ -833,19 +833,19 @@ public:
 		return ParsedProgram(std::move(tokens), std::move(name_table), filename);
 	}
 private:
-	SymbolicToken symbolic_token;											// очередная символьная лексема
+	SymbolicToken symbolic_token;			// очередная символьная лексема
 
-	TokenClass    token_class;												// класс лексемы языка
-	int           token_value;												// значени лексемы языка
-	int 		  line_number;												// номер строки
+	TokenClass    token_class;			// класс лексемы языка
+	int           token_value;			// значени лексемы языка
+	int 	      line_number;			// номер строки
 
-	int           name_table_index;											// регистр указателя
+	int           name_table_index;			// регистр указателя
 
-	int 		  number;													// регистр числа
+	int 		  number;			// регистр числа
 
-	CmpValue 	  cmp_value;											    // регистр отношения
+	CmpValue 	  cmp_value;			// регистр отношения
 
-	std::string   variable_name;											// регистр имени переменной
+	std::string   variable_name;			// регистр имени переменной
 
 	using parser_procedure = State (Parser::*)();
 	parser_procedure procedure_table[STATES_COUNT][SYMBOL_TOKEN_CLASS_COUNT];	// таблица процедур автомата
@@ -856,14 +856,14 @@ private:
 
 		struct DetectionTableLine {
 			char letter;				// буква
-			char alt;					// альтернатива
-			parser_procedure procedure;	// процедура
+			char alt;				// альтернатива
+			parser_procedure procedure;		// процедура
 		};
-		DetectionTableLine table[35];		// таблица
+		DetectionTableLine table[35];			// таблица
 	};
-	DetectionTable 		 detection_table;									// таблциа обнаружений
-	int 		         detection_index;									// регистр обнаружений
+	DetectionTable 		 detection_table;		// таблциа обнаружений
+	int 		         detection_index;		// регистр обнаружений
 
-	std::vector<Token> 		      tokens;									// вектор лексем
-	std::vector<ObjectName>   name_table;									// таблица имён
+	std::vector<Token> 		      tokens;		// вектор лексем
+	std::vector<ObjectName>           name_table;		// таблица имён
 };
