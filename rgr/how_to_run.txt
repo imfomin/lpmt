@@ -1,0 +1,15 @@
+g++ main.cpp polynomial.lib -o main.exe
+g++ main.cpp polynomial.lib -fsanitize=address -o main.exe
+
+./main.exe <файл>
+
+Доступные файлы:
+	- input1
+	- input2
+	- input3
+	- input4
+	- input5
+	- input6
+	- input7
+	- minput1
+	- minput2
