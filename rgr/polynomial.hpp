@@ -20,7 +20,8 @@ public:
 	степень такого многочлена считается равной нулю */
 
 	Polynomial();
-	Polynomial(float number);
+	Polynomial(float coeff);
+	Polynomial(int power, float coeff);
 	Polynomial(const Polynomial& other);
 	Polynomial(Polynomial&& other) noexcept;
 	~Polynomial();

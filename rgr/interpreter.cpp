@@ -232,10 +232,11 @@ private:
 
 		Object new_obj;
 		switch (obj_name.type) {
-		case ObjectType::Variable: if (Variables.count(*(std::string*)obj_name.name_pointer) == 0) { error(); return; }
-								   new_obj = Variables[*(std::string*)obj_name.name_pointer];
-								   break;								
-		case ObjectType::Constant: new_obj.set(new int(*(int*)obj_name.name_pointer), ValueType::Integer); break;
+		case ObjectType::Variable:    if (Variables.count(*(std::string*)obj_name.name_pointer) == 0) { error(); return; }
+								      new_obj = Variables[*(std::string*)obj_name.name_pointer];
+								      break;								
+		case ObjectType::IntConstant: new_obj.set(new int(*(int*)obj_name.name_pointer), ValueType::Integer); 				   break;
+		case ObjectType::PolConstant: new_obj.set(new Polynomial(*(Polynomial*)obj_name.name_pointer), ValueType::Polynomial); break;
 		}
 
 		Stack.push_back(std::move(new_obj));
@@ -432,7 +433,7 @@ private:
 		case ValueType::Polynomial: p = *(Polynomial*)obj1.get_ptr(); break;
 		}
 
-		obj1.set(new int(p(*(int*)obj2.get_ptr())), ValueType::Integer);
+		obj1.set(new Polynomial(p(*(int*)obj2.get_ptr())), ValueType::Polynomial);
 		Stack.push_back(std::move(obj1));
 		executable_token_index++;
 	}

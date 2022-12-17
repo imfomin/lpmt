@@ -9,10 +9,15 @@ void Polynomial::alloc(int _count_terms) {
 
 Polynomial::Polynomial() : Terms(nullptr), count_terms(0) {}
 
-Polynomial::Polynomial(float number) {
+Polynomial::Polynomial(float coeff) {
 	alloc(1);
-	Terms->coefficient = number;
+	Terms->coefficient = coeff;
 	Terms->power = 0;
+}
+Polynomial::Polynomial(int power, float coeff) {
+	alloc(1);
+	Terms->coefficient = coeff;
+	Terms->power = power;
 }
 Polynomial::Polynomial(const Polynomial& other) {
 	alloc(other.count_terms);
@@ -64,6 +69,8 @@ Polynomial& Polynomial::operator =(const Polynomial& other) {
 }
 Polynomial& Polynomial::operator =(Polynomial&& other) noexcept {
 	if (this == &other) return *this;
+
+	clear();
 
 	Terms = other.Terms;
 	count_terms = other.count_terms;
