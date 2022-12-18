@@ -213,22 +213,22 @@ public:
 };
 
 /* перечисление состояний автомата */
-enum State { s_A1, s_A2,		// поиск новой лексемы
-			 s_B1,				// считывание ключевого слова
-			 s_C1,				// считывание строки до конца или комментария после правильной команды
-			 s_D1,				// считывание операции сравнения
-			 s_E1, s_E2, s_E3,  // считывание пробелоа после ключевого слова, после которого нужен аргумент
-			 s_F1, s_F2, s_F3,  // считывание пробелов до константы или перемнной после ключевого слова
-			 s_G1,				// считывание константы
-			 s_H1,				// считывание переменной
-			 s_I1, s_I2,		// считывание комментария
-			 s_J1,				// считывание строки до конца после ошибки
-			 s_K1,				// ожидание очередного слагаемого многочлена
-			 s_L1, s_L2, s_L3,	// считывание степени слагаемого многочлена
-			 s_N1, s_N2, s_N3,	// считывание коэффициента при степени многочлена
-			 s_Stop			    // остановка
+enum State { s_A1, s_A2,				// поиск новой лексемы
+			 s_B1,						// считывание ключевого слова
+			 s_C1,						// считывание строки до конца или комментария после правильной команды
+			 s_D1,						// считывание операции сравнения
+			 s_E1, s_E2, s_E3,  		// считывание пробелоа после ключевого слова, после которого нужен аргумент
+			 s_F1, s_F2, s_F3,  		// считывание пробелов до константы или перемнной после ключевого слова
+			 s_G1,						// считывание константы
+			 s_H1,						// считывание переменной
+			 s_I1, s_I2,				// считывание комментария
+			 s_J1,						// считывание строки до конца после ошибки
+			 s_K1,						// ожидание очередного слагаемого многочлена
+			 s_L1, s_L2, s_L3,			// считывание степени слагаемого многочлена
+			 s_N1, s_N2, s_N3, s_N4,	// считывание коэффициента при степени многочлена
+			 s_Stop			    		// остановка
 		    };
-const int STATES_COUNT = 23;    // количество состояний автомата (без s_Stop)
+const int STATES_COUNT = 24;    // количество состояний автомата (без s_Stop)
 
 /* класс "лексический анализатор" */
 class Parser {
@@ -532,7 +532,7 @@ private:
 		for (int i = 0; i < fract_count; ++i) {
 			fract_part /= 10;
 		}
-		polynomial = polynomial + Polynomial(number, int_part + fract_part);
+		polynomial = polynomial + Polynomial(number, int_part + fract_part) * Polynomial(sign);
 
 		add_polynomial();
 		token_value = name_table_index;
@@ -745,7 +745,7 @@ private:
 		for (int i = 0; i < fract_count; ++i) {
 			fract_part /= 10;
 		}
-		polynomial = polynomial + Polynomial(number, int_part + fract_part);
+		polynomial = polynomial + Polynomial(number, int_part + fract_part) * Polynomial(sign);
 
 		return s_K1;
 	}
@@ -766,7 +766,7 @@ private:
 		for (int i = 0; i < fract_count; ++i) {
 			fract_part /= 10;
 		}
-		polynomial = polynomial + Polynomial(number, int_part + fract_part);
+		polynomial = polynomial + Polynomial(number, int_part + fract_part) * Polynomial(sign);
 
 		switch (symbolic_token.value) {
 		case '+': sign =  1; break;
@@ -828,6 +828,16 @@ private:
 
 		return s_N3;
 	}
+	State N3b() {
+		int_part = 0;
+		fract_part = symbolic_token.value;
+		fract_count = 1;
+
+		return s_N3;
+	}
+	State N4() {
+		return s_N4;
+	}
 
 public:
 	/* констурктор задаёт начальное значение номера строки и указателя на таблицу имён 
@@ -859,6 +869,7 @@ public:
 														procedure_table[s_N1][Digit] = &Parser::N2a;
 														procedure_table[s_N2][Digit] = &Parser::N2b;
 														procedure_table[s_N3][Digit] = &Parser::N3a;
+														procedure_table[s_N4][Digit] = &Parser::N3b;
 
 		procedure_table[s_A1][Cmp] = &Parser::D1a;		procedure_table[s_A1][Space] = &Parser::A1;					procedure_table[s_A1][LF] = &Parser::A1b;
 		procedure_table[s_A2][Cmp] = &Parser::D1a;		procedure_table[s_A2][Space] = &Parser::A2;					procedure_table[s_A2][LF] = &Parser::A2a;
@@ -883,9 +894,9 @@ public:
 														procedure_table[s_N2][Space] = &Parser::K1b;
 														procedure_table[s_N3][Space] = &Parser::K1b;
 
-		procedure_table[s_A1][SemiCol] = &Parser::I1a;	procedure_table[s_A2][EndOfFileSymbol] = &Parser::Exit1;	procedure_table[s_I1][Other] = &Parser::I1;
-		procedure_table[s_A2][SemiCol] = &Parser::I2a;	procedure_table[s_C1][EndOfFileSymbol] = &Parser::Exit1;	procedure_table[s_I2][Other] = &Parser::I2;
-		procedure_table[s_C1][SemiCol] = &Parser::I2a;	procedure_table[s_D1][EndOfFileSymbol] = &Parser::Exit2;	procedure_table[s_J1][Other] = &Parser::J1;
+		procedure_table[s_A1][SemiCol] = &Parser::I1a;	procedure_table[s_A2][EndOfFileSymbol] = &Parser::Exit1; procedure_table[s_I1][Other] = &Parser::I1;
+		procedure_table[s_A2][SemiCol] = &Parser::I2a;	procedure_table[s_C1][EndOfFileSymbol] = &Parser::Exit1; procedure_table[s_I2][Other] = &Parser::I2;
+		procedure_table[s_C1][SemiCol] = &Parser::I2a;	procedure_table[s_D1][EndOfFileSymbol] = &Parser::Exit2; procedure_table[s_J1][Other] = &Parser::J1;
 		procedure_table[s_D1][SemiCol] = &Parser::I2d;	procedure_table[s_G1][EndOfFileSymbol] = &Parser::Exit3;
 		procedure_table[s_G1][SemiCol] = &Parser::I2b;	procedure_table[s_H1][EndOfFileSymbol] = &Parser::Exit4;
 		procedure_table[s_H1][SemiCol] = &Parser::I2c;	procedure_table[s_I2][EndOfFileSymbol] = &Parser::Exit5;
@@ -897,8 +908,8 @@ public:
 		procedure_table[s_I1][LSqBracket] = &Parser::I1;  procedure_table[s_I1][RSqBracket] = &Parser::I1;  procedure_table[s_I1][Dot] = &Parser::I1;
 		procedure_table[s_I2][LSqBracket] = &Parser::I2;  procedure_table[s_I2][RSqBracket] = &Parser::I2;  procedure_table[s_I2][Dot] = &Parser::I2;
 		procedure_table[s_J1][LSqBracket] = &Parser::J1;  procedure_table[s_J1][RSqBracket] = &Parser::J1;  procedure_table[s_J1][Dot] = &Parser::J1;
-														  procedure_table[s_K1][RSqBracket] = &Parser::C1m; procedure_table[s_N2][Dot] = &Parser::N3;
-														  procedure_table[s_N2][RSqBracket] = &Parser::C1n;
+														  procedure_table[s_K1][RSqBracket] = &Parser::C1m; procedure_table[s_N1][Dot] = &Parser::N4;
+														  procedure_table[s_N2][RSqBracket] = &Parser::C1n; procedure_table[s_N2][Dot] = &Parser::N3;
 														  procedure_table[s_N3][RSqBracket] = &Parser::C1n;
 
 		procedure_table[s_I1][Colon] = &Parser::I1;
@@ -977,7 +988,7 @@ public:
 		detection_table.table[31].letter = 'a';											
 		detection_table.table[32].letter = 'l';											
 		detection_table.table[33].letter = 'u';											
-		detection_table.table[34].letter = 'e';											detection_table.table[34].procedure = &Parser::C1l;
+		detection_table.table[34].letter = 'e'; 										detection_table.table[34].procedure = &Parser::C1l;
 												// value
 	}
 
@@ -998,12 +1009,11 @@ public:
 		while (state != s_Stop)
 		{
 			// читаем символ
-			symbol = in.get(); 						 //std::cout << symbol << ' ';
+			symbol = in.get();
 			// строим его символьную лексему
 			symbolic_token = transtilerator(symbol); 
 			// применяем процедуру
 			state = (this->*procedure_table[state][symbolic_token.token_class])();
-			//std::cout << state << '\n';
 		}
 
 		in.close();
