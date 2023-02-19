@@ -1,0 +1,46 @@
+;
+X, Y, Z : int ;
+let X = Y = Z = 2 + 3 * 4;
+P1, P2 :   pol;;;
+let P1 = [ +2 : 1.1 ];
+
+let P2 = [];
+
+label for X = 0 + 0 to 2 adding 1
+    let Y = Y + 1;
+    next label
+
+if 0 == 0 goto afterif else goto label ;
+
+load (X, Y, Z);
+
+put (P1, P2);
+
+:afterif
+goto afterif;
+
+switch (X) 
+	case 1: break;
+	default: break;
+end switch;
+
+error;
+
+<<<remark>>>
+<<<one more remark%%
+		%$$$???		
+		>>>
+
+
+aiosjhd fkads hfkjashd bfkmxn
+,.,.,.2,11,3.,w.q,e$$$$$
+$$4
+$
+4
+44
+4
+f dmfh djf cmvndjf md << <<= >> !> !?>
+
+(2+3 *[])(2%p[])
+
+[-3:[+2:3.14] ]
