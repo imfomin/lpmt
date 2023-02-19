@@ -1,5 +1,7 @@
-g++ main.cpp polynomial.lib -o main.exe
-g++ main.cpp polynomial.lib -fsanitize=address -o main.exe
+g++ polynomial.cpp -c
+
+g++ main.cpp polynomial.o -o main.exe
+g++ main.cpp polynomial.o -fsanitize=address -o main.exe
 
 ./main.exe <файл>
 
