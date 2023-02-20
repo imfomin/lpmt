@@ -61,17 +61,10 @@ struct LngConstant {
 
 	void set(Type _type, void* pointer) { type = _type, value_pointer = pointer; }
 
-	void clear() {
+	~LngConstant() {
 		if (!value_pointer) return;
 
 		SWITCH_TYPE(type, delete (int*)value_pointer;, delete (Polynomial*)value_pointer;)
-
-		type = Type::Integer;
-		value_pointer = nullptr;
-	}
-
-	~LngConstant() {
-		clear();
 	}
 
 	LngConstant(Type _type = Type::Integer, void* _ptr = nullptr) { type = _type; value_pointer = _ptr; }
@@ -92,16 +85,12 @@ struct LngConstant {
 	LngConstant& operator =(const LngConstant& other) {
 		if (this == &other) return *this;
 
-		clear();
-
 		SWITCH_TYPE(type, CDRC_ALLOC(value_pointer, other.value_pointer, int), CDRC_ALLOC(value_pointer, other.value_pointer, Polynomial))
 
 		return *this;
 	}
 	LngConstant& operator =(LngConstant&& other) {
 		if (this == &other) return *this;
-
-		clear();
 
 		type = other.type;
 		value_pointer = other.value_pointer;
@@ -383,7 +372,7 @@ enum State { s_A1,
              s_F1, s_F2, s_F3,
              s_G1, s_G2, s_G3, s_G4,
              s_Err1,
-             s_Stop, s_Tech, 
+             s_Stop 
             };
 const size_t STATE_COUNT = s_Stop;
 
@@ -752,6 +741,11 @@ State EXIT() {
 	return s_Stop;
 }
 
+State ERREXIT() {
+	ERR();
+	return EXIT();
+}
+
 State ERR1() {
 	return s_Err1;
 }
@@ -772,34 +766,204 @@ State P2() {
 	return P1(); 
 }
 
-State N() {
+void N() {
 	r_constant_table_index = r_program.add_int_constant(r_number);
 	ADD_TOKEN(Constant, r_constant_table_index)
-
-	return s_Tech;
 }
 
-State CM1() {
+State NA1a() {
+	N();
+	return A1a();
+}
+
+State NA1b() {
+	N();
+	return A1b();
+}
+
+State NA1c() {
+	N();
+	return A1c();
+}
+
+State NA1d() {
+	N();
+	return A1d();
+}
+
+State NA1e() {
+	N();
+	return A1e();
+}
+
+State NA1f() {
+	N();
+	return A1f();
+}
+
+State NA1g() {
+	N();
+	return A1g();
+}
+
+State ND1a() {
+	N();
+	return D1a();
+}
+
+State NEXIT() {
+	N();
+	return EXIT();
+}
+
+State NERR() {
+	N();
+	return ERR();
+}
+
+State NERRE1a() {
+	N();
+	ERR();
+	return E1a();
+}
+
+void CM1() {
 	switch (r_cmp_symbol1) {
 	case '!': ADD_TOKEN(LexError, 0) break;
 	case '<': ADD_TOKEN(CompareOperator, Less) break;
 	case '>': ADD_TOKEN(CompareOperator, Bigger) break;
 	case '=': ADD_TOKEN(Assignment, 0) break;
 	}
+}
 
-	return s_Tech;
+State CM1A1a() {
+	CM1();
+	return A1a();
+}
+
+State CM1A1b() {
+	CM1();
+	return A1b();
+}
+
+State CM1A1c() {
+	CM1();
+	return A1c();
+}
+
+State CM1A1d() {
+	CM1();
+	return A1d();
+}
+
+State CM1A1e() {
+	CM1();
+	return A1e();
+}
+
+State CM1A1f() {
+	CM1();
+	return A1f();
+}
+
+State CM1A1g() {
+	CM1();
+	return A1g();
+}
+
+State CM1B1a() {
+	CM1();
+	return B1a();
+}
+
+State CM1C1a() {
+	CM1();
+	return C1a();
+}
+
+State CM1EXIT() {
+	CM1();
+	return EXIT();
+}
+
+State CM1ERR() {
+	CM1();
+	return ERR();
+}
+
+State CM1E1a() {
+	CM1();
+	return E1a();
 }
 
 #define IS_RELATION(part1, part2) (r_cmp_symbol1 == part1 && r_cmp_symbol2 == part2)
 
-State CM2() {
+void CM2() {
 	if      (IS_RELATION('!', '=')) { ADD_TOKEN(CompareOperator, NotEqual) }
 	else if (IS_RELATION('=', '=')) { ADD_TOKEN(CompareOperator, Equal) }
 	else if (IS_RELATION('<', '=')) { ADD_TOKEN(CompareOperator, LessOrEqual) }
 	else if (IS_RELATION('>', '=')) { ADD_TOKEN(CompareOperator, BiggerOrEqual) }
 	else { ADD_TOKEN(LexError, 0) }
+}
 
-    return s_Tech;
+State CM2A1a() {
+	CM2();
+	return A1a();
+}
+
+State CM2A1b() {
+	CM2();
+	return A1b();
+}
+
+State CM2A1c() {
+	CM2();
+	return A1c();
+}
+
+State CM2A1d() {
+	CM2();
+	return A1d();
+}
+
+State CM2A1e() {
+	CM2();
+	return A1e();
+}
+
+State CM2A1f() {
+	CM2();
+	return A1f();
+}
+
+State CM2A1g() {
+	CM2();
+	return A1g();
+}
+
+State CM2B1a() {
+	CM2();
+	return B1a();
+}
+
+State CM2C1a() {
+	CM2();
+	return C1a();
+}
+
+State CM2EXIT() {
+	CM2();
+	return EXIT();
+}
+
+State CM2ERR() {
+	CM2();
+	return ERR();
+}
+
+State CM2E1a() {
+	CM2();
+	return E1a();
 }
 
 State CM3() {
@@ -808,17 +972,125 @@ State CM3() {
 	return ERR();
 }
 
-State KW() {
+void KW() {
 	ADD_TOKEN(r_token_class, r_token_value)
-
-	return s_Tech;
 }
 
-State W() {
+State KWA1a() {
+	KW();
+	return A1a();
+}
+
+State KWA1b() {
+	KW();
+	return A1b();
+}
+
+State KWA1c() {
+	KW();
+	return A1c();
+}
+
+State KWA1d() {
+	KW();
+	return A1d();
+}
+
+State KWA1e() {
+	KW();
+	return A1e();
+}
+
+State KWA1f() {
+	KW();
+	return A1f();
+}
+
+State KWA1g() {
+	KW();
+	return A1g();
+}
+
+State KWD1a() {
+	KW();
+	return D1a();
+}
+
+State KWEXIT() {
+	KW();
+	return EXIT();
+}
+
+State KWERR() {
+	KW();
+	return ERR();
+}
+
+State KWERRE1a() {
+	KW();
+	ERR();
+	return E1a();
+}
+
+void W() {
 	r_id_table_index = r_program.add_identifier(r_string);
 	ADD_TOKEN(Identifier, r_id_table_index)
+}
 
-	return s_Tech;
+State WA1a() {
+	W();
+	return A1a();
+}
+
+State WA1b() {
+	W();
+	return A1b();
+}
+
+State WA1c() {
+	W();
+	return A1c();
+}
+
+State WA1d() {
+	W();
+	return A1d();
+}
+
+State WA1e() {
+	W();
+	return A1e();
+}
+
+State WA1f() {
+	W();
+	return A1f();
+}
+
+State WA1g() {
+	W();
+	return A1g();
+}
+
+State WD1a() {
+	W();
+	return D1a();
+}
+
+State WEXIT() {
+	W();
+	return EXIT();
+}
+
+State WERR() {
+	W();
+	return ERR();
+}
+
+State WERRE1a() {
+	W();
+	ERR();
+	return E1a();
 }
 
 // загрузка букв в таблицу обнаружений;
@@ -911,75 +1183,74 @@ inline void fill_init_vector() {
 
 // заполнение таблицы процедур
 //
-std::vector<Procedure> procedure_table[STATE_COUNT][SYMBOLIC_COUNT];
+Procedure procedure_table[STATE_COUNT][SYMBOLIC_COUNT];
 
-#define PTSET(state, st_class, procedures) procedure_table[state][st_class] = procedures;
-#define IL(...) {__VA_ARGS__} // initializer list
+#define PTSET(state, st_class, procedure) procedure_table[state][st_class] = procedure;
 
 inline void fill_procedure_table() {
 	for (int i = 0; i < STATE_COUNT; ++i) {
 		for (int j = 0; j < SYMBOLIC_COUNT; ++j) {
-			PTSET(i, j, {ERR})
+			PTSET(i, j, ERR)
 		}
 	}
-	PTSET(s_A1, Letter, {B1a})        PTSET(s_A1, Digit, {C1a})        /*PTSET(s_A1, Dot, )*/         PTSET(s_A1, S_Comma, {A1a})        PTSET(s_A1, S_Semicol, {A1b})
-	PTSET(s_B1, Letter, {M1})         PTSET(s_B1, Digit, {B2a})        PTSET(s_B1, Dot, IL(W, ERR))   PTSET(s_B1, S_Comma, IL(W, A1a))   PTSET(s_B1, S_Semicol, IL(W, A1b))
-	PTSET(s_B2, Letter, {B2a})        PTSET(s_B2, Digit, {B2a})        PTSET(s_B2, Dot, IL(W, ERR))   PTSET(s_B2, S_Comma, IL(W, A1a))   PTSET(s_B2, S_Semicol, IL(W, A1b))
-	PTSET(s_B3, Letter, {B2a})        PTSET(s_B3, Digit, {B2a})        PTSET(s_B3, Dot, IL(KW, ERR))  PTSET(s_B3, S_Comma, IL(KW, A1a))  PTSET(s_B3, S_Semicol, IL(KW, A1b))
-	/*PTSET(s_C1, Letter, )*/         PTSET(s_C1, Digit, {C1b})        PTSET(s_C1, Dot, IL(N, ERR))   PTSET(s_C1, S_Comma, IL(N, A1a))   PTSET(s_C1, S_Semicol, IL(N, A1b))
-	PTSET(s_D1, Letter, IL(CM1, B1a)) PTSET(s_D1, Digit, IL(CM1, C1a)) PTSET(s_D1, Dot, IL(CM1, ERR)) PTSET(s_D1, S_Comma, IL(CM1, A1a)) PTSET(s_D1, S_Semicol, IL(CM1, A1b))
-	PTSET(s_D2, Letter, IL(CM2, B1a)) PTSET(s_D2, Digit, IL(CM2, C1a)) PTSET(s_D2, Dot, IL(CM2, ERR)) PTSET(s_D2, S_Comma, IL(CM2, A1a)) PTSET(s_D2, S_Semicol, IL(CM2, A1b))
+	PTSET(s_A1, Letter, B1a)    PTSET(s_A1, Digit, C1a)    /*PTSET(s_A1, Dot, )*/   PTSET(s_A1, S_Comma, A1a)    PTSET(s_A1, S_Semicol, A1b)
+	PTSET(s_B1, Letter, M1)     PTSET(s_B1, Digit, B2a)    PTSET(s_B1, Dot, WERR)   PTSET(s_B1, S_Comma, WA1a)   PTSET(s_B1, S_Semicol, WA1b)
+	PTSET(s_B2, Letter, B2a)    PTSET(s_B2, Digit, B2a)    PTSET(s_B2, Dot, WERR)   PTSET(s_B2, S_Comma, WA1a)   PTSET(s_B2, S_Semicol, WA1b)
+	PTSET(s_B3, Letter, B2a)    PTSET(s_B3, Digit, B2a)    PTSET(s_B3, Dot, KWERR)  PTSET(s_B3, S_Comma, KWA1a)  PTSET(s_B3, S_Semicol, KWA1b)
+	/*PTSET(s_C1, Letter, )*/   PTSET(s_C1, Digit, C1b)    PTSET(s_C1, Dot, NERR)   PTSET(s_C1, S_Comma, NA1a)   PTSET(s_C1, S_Semicol, NA1b)
+	PTSET(s_D1, Letter, CM1B1a) PTSET(s_D1, Digit, CM1C1a) PTSET(s_D1, Dot, CM1ERR) PTSET(s_D1, S_Comma, CM1A1a) PTSET(s_D1, S_Semicol, CM1A1b)
+	PTSET(s_D2, Letter, CM2B1a) PTSET(s_D2, Digit, CM2C1a) PTSET(s_D2, Dot, CM2ERR) PTSET(s_D2, S_Comma, CM2A1a) PTSET(s_D2, S_Semicol, CM2A1b)
 
-	PTSET(s_A1, S_Colon, {A1c})        PTSET(s_A1, Arithmetic, {A1d})        PTSET(s_A1, Compare, {D1a})       PTSET(s_A1, LRoundBracket, {A1e})        PTSET(s_A1, RRoundBracket, {A1f})
-	PTSET(s_B1, S_Colon, IL(W, A1c))   PTSET(s_B1, Arithmetic, IL(W, A1d))   PTSET(s_B1, Compare, IL(W, D1a))  PTSET(s_B1, LRoundBracket, IL(W, A1e))   PTSET(s_B1, RRoundBracket, IL(W, A1f))
-	PTSET(s_B2, S_Colon, IL(W, A1c))   PTSET(s_B2, Arithmetic, IL(W, A1d))   PTSET(s_B2, Compare, IL(W, D1a))  PTSET(s_B2, LRoundBracket, IL(W, A1e))   PTSET(s_B2, RRoundBracket, IL(W, A1f))
-	PTSET(s_B3, S_Colon, IL(KW, A1c))  PTSET(s_B3, Arithmetic, IL(KW, A1d))  PTSET(s_B3, Compare, IL(KW, D1a)) PTSET(s_B3, LRoundBracket, IL(KW, A1e))  PTSET(s_B3, RRoundBracket, IL(KW, A1f))
-	PTSET(s_C1, S_Colon, IL(N, A1c))   PTSET(s_C1, Arithmetic, IL(N, A1d))   PTSET(s_C1, Compare, IL(N, D1a))  PTSET(s_C1, LRoundBracket, IL(N, A1e))   PTSET(s_C1, RRoundBracket, IL(N, A1f))
-	PTSET(s_D1, S_Colon, IL(CM1, A1c)) PTSET(s_D1, Arithmetic, IL(CM1, A1d)) PTSET(s_D1, Compare, {D2a})       PTSET(s_D1, LRoundBracket, IL(CM1, A1e)) PTSET(s_D1, RRoundBracket, IL(CM1, A1f))
-	PTSET(s_D2, S_Colon, IL(CM2, A1c)) PTSET(s_D2, Arithmetic, IL(CM2, A1d)) PTSET(s_D2, Compare, {CM3})       PTSET(s_D2, LRoundBracket, IL(CM2, A1e)) PTSET(s_D2, RRoundBracket, IL(CM2, A1f))
+	PTSET(s_A1, S_Colon, A1c)    PTSET(s_A1, Arithmetic, A1d)    PTSET(s_A1, Compare, D1a)   PTSET(s_A1, LRoundBracket, A1e)    PTSET(s_A1, RRoundBracket, A1f)
+	PTSET(s_B1, S_Colon, WA1c)   PTSET(s_B1, Arithmetic, WA1d)   PTSET(s_B1, Compare, WD1a)  PTSET(s_B1, LRoundBracket, WA1e)   PTSET(s_B1, RRoundBracket, WA1f)
+	PTSET(s_B2, S_Colon, WA1c)   PTSET(s_B2, Arithmetic, WA1d)   PTSET(s_B2, Compare, WD1a)  PTSET(s_B2, LRoundBracket, WA1e)   PTSET(s_B2, RRoundBracket, WA1f)
+	PTSET(s_B3, S_Colon, KWA1c)  PTSET(s_B3, Arithmetic, KWA1d)  PTSET(s_B3, Compare, KWD1a) PTSET(s_B3, LRoundBracket, KWA1e)  PTSET(s_B3, RRoundBracket, KWA1f)
+	PTSET(s_C1, S_Colon, NA1c)   PTSET(s_C1, Arithmetic, NA1d)   PTSET(s_C1, Compare, ND1a)  PTSET(s_C1, LRoundBracket, NA1e)   PTSET(s_C1, RRoundBracket, NA1f)
+	PTSET(s_D1, S_Colon, CM1A1c) PTSET(s_D1, Arithmetic, CM1A1d) PTSET(s_D1, Compare, D2a)   PTSET(s_D1, LRoundBracket, CM1A1e) PTSET(s_D1, RRoundBracket, CM1A1f)
+	PTSET(s_D2, S_Colon, CM2A1c) PTSET(s_D2, Arithmetic, CM2A1d) PTSET(s_D2, Compare, CM3)   PTSET(s_D2, LRoundBracket, CM2A1e) PTSET(s_D2, RRoundBracket, CM2A1f)
 
-	PTSET(s_A1, SqBracket, {E1a})            PTSET(s_A1, Space, {A1g})        PTSET(s_A1, EndOfFileSymbol, {EXIT})        /*PTSET(s_A1, Other, )*/
-	PTSET(s_B1, SqBracket, IL(W, ERR, E1a))  PTSET(s_B1, Space, IL(W, A1g))   PTSET(s_B1, EndOfFileSymbol, IL(W, EXIT))   /*PTSET(s_B1, Other, )*/
-	PTSET(s_B2, SqBracket, IL(W, ERR, E1a))  PTSET(s_B2, Space, IL(W, A1g))   PTSET(s_B2, EndOfFileSymbol, IL(W, EXIT))   /*PTSET(s_B2, Other, )*/
-	PTSET(s_B3, SqBracket, IL(KW, ERR, E1a)) PTSET(s_B3, Space, IL(KW, A1g))  PTSET(s_B3, EndOfFileSymbol, IL(KW, EXIT))  /*PTSET(s_B3, Other, )*/
-	PTSET(s_C1, SqBracket, IL(N, ERR, E1a))  PTSET(s_C1, Space, IL(N, A1g))   PTSET(s_C1, EndOfFileSymbol, IL(N, EXIT))   /*PTSET(s_C1, Other, )*/
-	PTSET(s_D1, SqBracket, IL(CM1, E1a))     PTSET(s_D1, Space, IL(CM1, A1g)) PTSET(s_D1, EndOfFileSymbol, IL(CM1, EXIT)) PTSET(s_D1, Other, IL(CM1, ERR))
-	PTSET(s_D2, SqBracket, IL(CM2, E1a))     PTSET(s_D2, Space, IL(CM2, A1g)) PTSET(s_D2, EndOfFileSymbol, IL(CM2, EXIT)) PTSET(s_D2, Other, IL(CM2, ERR))
+	PTSET(s_A1, SqBracket, E1a)      PTSET(s_A1, Space, A1g)    PTSET(s_A1, EndOfFileSymbol, EXIT)    /*PTSET(s_A1, Other, )*/
+	PTSET(s_B1, SqBracket, WERRE1a)  PTSET(s_B1, Space, WA1g)   PTSET(s_B1, EndOfFileSymbol, WEXIT)   /*PTSET(s_B1, Other, )*/
+	PTSET(s_B2, SqBracket, WERRE1a)  PTSET(s_B2, Space, WA1g)   PTSET(s_B2, EndOfFileSymbol, WEXIT)   /*PTSET(s_B2, Other, )*/
+	PTSET(s_B3, SqBracket, KWERRE1a) PTSET(s_B3, Space, KWA1g)  PTSET(s_B3, EndOfFileSymbol, KWEXIT)  /*PTSET(s_B3, Other, )*/
+	PTSET(s_C1, SqBracket, NERRE1a)  PTSET(s_C1, Space, NA1g)   PTSET(s_C1, EndOfFileSymbol, NEXIT)   /*PTSET(s_C1, Other, )*/
+	PTSET(s_D1, SqBracket, CM1E1a)   PTSET(s_D1, Space, CM1A1g) PTSET(s_D1, EndOfFileSymbol, CM1EXIT) PTSET(s_D1, Other, CM1ERR)
+	PTSET(s_D2, SqBracket, CM2E1a)   PTSET(s_D2, Space, CM2A1g) PTSET(s_D2, EndOfFileSymbol, CM2EXIT) PTSET(s_D2, Other, CM2ERR)
 
 	for (int i = s_D3; i <= s_D5; ++i) {
 		for (int j = 0; j < SYMBOLIC_COUNT; ++j) {
-			PTSET(i, j, {D3})
+			PTSET(i, j, D3)
 		}
 	}
 
-	PTSET(s_D3, Compare, {D4a}) PTSET(s_D3, Space, {D3a}) PTSET(s_D3, EndOfFileSymbol, IL(ERR, EXIT)) 
-	PTSET(s_D4, Compare, {D5a}) PTSET(s_D4, Space, {D3a}) PTSET(s_D4, EndOfFileSymbol, IL(ERR, EXIT))
-	PTSET(s_D5, Compare, {A1h}) PTSET(s_D5, Space, {D3a}) PTSET(s_D5, EndOfFileSymbol, IL(ERR, EXIT))
+	PTSET(s_D3, Compare, D4a) PTSET(s_D3, Space, D3a) PTSET(s_D3, EndOfFileSymbol, ERREXIT) 
+	PTSET(s_D4, Compare, D5a) PTSET(s_D4, Space, D3a) PTSET(s_D4, EndOfFileSymbol, ERREXIT)
+	PTSET(s_D5, Compare, A1h) PTSET(s_D5, Space, D3a) PTSET(s_D5, EndOfFileSymbol, ERREXIT)
 
-	/*PTSET(s_E1, Digit, )*/  /*PTSET(s_E1, Dot, )*/ /*PTSET(s_E1, S_Colon, )*/  PTSET(s_E1, Arithmetic, {F1a}) PTSET(s_E1, SqBracket, {P1})
-	PTSET(s_F1, Digit, {F2a}) /*PTSET(s_F1, Dot, )*/ /*PTSET(s_F1, S_Colon, )*/  /*PTSET(s_F1, Arithmetic, )*/  /*PTSET(s_F1, SqBracket, )*/
-	PTSET(s_F2, Digit, {F2b}) /*PTSET(s_F2, Dot, )*/ PTSET(s_F2, S_Colon, {G1a}) /*PTSET(s_F2, Arithmetic, )*/  /*PTSET(s_F2, SqBracket, )*/
-	/*PTSET(s_F3, Digit, )*/  /*PTSET(s_F3, Dot, )*/ PTSET(s_F3, S_Colon, {G1a}) /*PTSET(s_F3, Arithmetic, )*/  /*PTSET(s_F3, SqBracket, )*/
-	PTSET(s_G1, Digit, {G2a}) PTSET(s_G1, Dot, {G4}) /*PTSET(s_G1, S_Colon, )*/  /*PTSET(s_G1, Arithmetic, )*/  /*PTSET(s_G1, SqBracket, )*/
-	PTSET(s_G2, Digit, {G2b}) PTSET(s_G2, Dot, {G3}) /*PTSET(s_G2, S_Colon, )*/  PTSET(s_G2, Arithmetic, {F1b}) PTSET(s_G2, SqBracket, {P2})
- 	PTSET(s_G3, Digit, {G3a}) /*PTSET(s_G3, Dot, )*/ /*PTSET(s_G3, S_Colon, )*/  PTSET(s_G3, Arithmetic, {F1b}) PTSET(s_G3, SqBracket, {P2})
-	PTSET(s_G4, Digit, {G3b}) /*PTSET(s_G4, Dot, )*/ /*PTSET(s_G4, S_Colon, )*/  /*PTSET(s_G4, Arithmetic, )*/  /*PTSET(s_G4, SqBracket, )*/
+	/*PTSET(s_E1, Digit, )*/ /*PTSET(s_E1, Dot, )*/ /*PTSET(s_E1, S_Colon, )*/ PTSET(s_E1, Arithmetic, F1a)  PTSET(s_E1, SqBracket, P1)
+	PTSET(s_F1, Digit, F2a)  /*PTSET(s_F1, Dot, )*/ /*PTSET(s_F1, S_Colon, )*/ /*PTSET(s_F1, Arithmetic, )*/ /*PTSET(s_F1, SqBracket, )*/
+	PTSET(s_F2, Digit, F2b)  /*PTSET(s_F2, Dot, )*/ PTSET(s_F2, S_Colon, G1a)  /*PTSET(s_F2, Arithmetic, )*/ /*PTSET(s_F2, SqBracket, )*/
+	/*PTSET(s_F3, Digit, )*/ /*PTSET(s_F3, Dot, )*/ PTSET(s_F3, S_Colon, G1a)  /*PTSET(s_F3, Arithmetic, )*/ /*PTSET(s_F3, SqBracket, )*/
+	PTSET(s_G1, Digit, G2a)  PTSET(s_G1, Dot, G4)   /*PTSET(s_G1, S_Colon, )*/ /*PTSET(s_G1, Arithmetic, )*/ /*PTSET(s_G1, SqBracket, )*/
+	PTSET(s_G2, Digit, G2b)  PTSET(s_G2, Dot, G3)   /*PTSET(s_G2, S_Colon, )*/ PTSET(s_G2, Arithmetic, F1b)  PTSET(s_G2, SqBracket, P2)
+ 	PTSET(s_G3, Digit, G3a)  /*PTSET(s_G3, Dot, )*/ /*PTSET(s_G3, S_Colon, )*/ PTSET(s_G3, Arithmetic, F1b)  PTSET(s_G3, SqBracket, P2)
+	PTSET(s_G4, Digit, G3b)  /*PTSET(s_G4, Dot, )*/ /*PTSET(s_G4, S_Colon, )*/ /*PTSET(s_G4, Arithmetic, )*/ /*PTSET(s_G4, SqBracket, )*/
 
-	PTSET(s_E1, Space, {E1g})  PTSET(s_E1, EndOfFileSymbol, IL(ERR, EXIT))
-	PTSET(s_F1, Space, {F1g})  PTSET(s_F1, EndOfFileSymbol, IL(ERR, EXIT))
-	PTSET(s_F2, Space, {F3g})  PTSET(s_F2, EndOfFileSymbol, IL(ERR, EXIT))
-	PTSET(s_F3, Space, {F3g})  PTSET(s_F3, EndOfFileSymbol, IL(ERR, EXIT))
-	PTSET(s_G1, Space, {G1g})  PTSET(s_G1, EndOfFileSymbol, IL(ERR, EXIT))  
-	PTSET(s_G2, Space, {E1bg}) PTSET(s_G2, EndOfFileSymbol, IL(ERR, EXIT))  
- 	PTSET(s_G3, Space, {E1bg}) PTSET(s_G3, EndOfFileSymbol, IL(ERR, EXIT))
-	/*PTSET(s_G4, Space, )*/   PTSET(s_G4, EndOfFileSymbol, IL(ERR, EXIT))
+	PTSET(s_E1, Space, E1g)  PTSET(s_E1, EndOfFileSymbol, ERREXIT)
+	PTSET(s_F1, Space, F1g)  PTSET(s_F1, EndOfFileSymbol, ERREXIT)
+	PTSET(s_F2, Space, F3g)  PTSET(s_F2, EndOfFileSymbol, ERREXIT)
+	PTSET(s_F3, Space, F3g)  PTSET(s_F3, EndOfFileSymbol, ERREXIT)
+	PTSET(s_G1, Space, G1g)  PTSET(s_G1, EndOfFileSymbol, ERREXIT)  
+	PTSET(s_G2, Space, E1bg) PTSET(s_G2, EndOfFileSymbol, ERREXIT)  
+ 	PTSET(s_G3, Space, E1bg) PTSET(s_G3, EndOfFileSymbol, ERREXIT)
+	/*PTSET(s_G4, Space, )*/ PTSET(s_G4, EndOfFileSymbol, ERREXIT)
 
 	for (int i = 0; i < SYMBOLIC_COUNT; ++i) {
-		PTSET(s_Err1, i, {ERR1})
+		PTSET(s_Err1, i, ERR1)
 	}
 
-	PTSET(s_Err1, Space, {A1g})
-	PTSET(s_Err1, EndOfFileSymbol, {EXIT})
+	PTSET(s_Err1, Space, A1g)
+	PTSET(s_Err1, EndOfFileSymbol, EXIT)
 
 	/*PTSET(s_Err1, Letter, ERR1)
 	PTSET(s_Err1, Digit, ERR1)
@@ -1026,18 +1297,14 @@ void run_lexer(const char* filename) {
 	while (r_state != s_Stop) {
 		char symbol = in.get();
 		r_symbolic_token = transliterator(symbol);
-
-		for (auto it = procedure_table[r_state][r_symbolic_token.clazz].begin(); it != --procedure_table[r_state][r_symbolic_token.clazz].end(); ++it) {
-			(*it)();
-		}
-		r_state = (procedure_table[r_state][r_symbolic_token.clazz].back())();
+		r_state = procedure_table[r_state][r_symbolic_token.clazz]();
 	}
 }
 
 int main() {
 	run_lexer("input1");
 
-	std::ofstream out("tokens");
+	std::ofstream out("tokens.old");
 	r_program.print_tokens(out);
 	out << "\n\n\n";
 	r_program.print_id_table(out);
