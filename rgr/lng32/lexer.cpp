@@ -28,7 +28,7 @@ enum LngTokenClass { Keyword, TypeKeyword, Identifier, Constant, Comma, Semicol,
 
 // перечисление ключевых слов
 //
-enum Keywords { Let, For, To, Adding, Next, If, Goto, Else, Load, Put, Switch, Case, Default, Break, Error, End };
+enum Keywords { Let, For, To, Adding, Next, If, Goto, Else, Load, Put, Switch, Case, Default, Break, Error, End, Value, Derivative, Elem, Deg };
 
 // перечисление ключевых слов, обозначающих тип
 //
@@ -291,22 +291,26 @@ public:
 
 		    switch (token.clazz) {
 	        case Keyword: switch (token.value) {
-                          case Let:     os << "let"; break;
-                          case For:     os << "for"; break;
-                          case To:      os << "to"; break;
-                          case Adding:  os << "adding"; break;
-                          case Next:    os << "next"; break;
-                          case If:      os << "if"; break;
-                          case Goto:    os << "goto"; break;
-                          case Else:    os << "else"; break;
-                          case Load:    os << "load"; break;
-                          case Put:     os << "put"; break;
-                          case Switch:  os << "switch"; break;
-                          case Case:    os << "case"; break;
-                          case Default: os << "default"; break;
-                          case Break:   os << "break"; break;
-                          case Error:   os << "error"; break;
-                          case End:     os << "end"; break;
+                          case Let:        os << "let"; break;
+                          case For:        os << "for"; break;
+                          case To:         os << "to"; break;
+                          case Adding:     os << "adding"; break;
+                          case Next:       os << "next"; break;
+                          case If:         os << "if"; break;
+                          case Goto:       os << "goto"; break;
+                          case Else:       os << "else"; break;
+                          case Load:       os << "load"; break;
+                          case Put:        os << "put"; break;
+                          case Switch:     os << "switch"; break;
+                          case Case:       os << "case"; break;
+                          case Default:    os << "default"; break;
+                          case Break:      os << "break"; break;
+                          case Error:      os << "error"; break;
+                          case End:        os << "end"; break;
+                          case Value:      os << "value"; break;
+                          case Derivative: os << "derivative"; break;
+                          case Elem:       os << "elem"; break;
+                          case Deg:        os << "deg"; break;
 	                      }
 	                      break;
 	        case TypeKeyword: switch (token.value) {
@@ -382,6 +386,7 @@ enum State { s_A1,
              s_E1,
              s_F1, s_F2, s_F3,
              s_G1, s_G2, s_G3, s_G4,
+             s_H1,
              s_Err1,
              s_Stop, s_Tech, 
             };
@@ -433,7 +438,7 @@ std::ostream& operator <<(std::ostream& os, const DetectionTableLine& DTL) {
 }
 
 // таблица обнаружений
-#define DT_SIZE 53
+#define DT_SIZE 71
 DetectionTableLine detection_table[DT_SIZE] = { 0 };
 int init_vector[26];
 
@@ -601,6 +606,26 @@ State B3r() {
 	return s_B3;
 }
 
+State B3s() {
+	SET_KEYWORD(Value)
+	return s_B3;
+}
+
+State B3t() {
+	SET_KEYWORD(Derivative)
+	return s_B3;
+}
+
+State B3u() {
+	SET_KEYWORD(Elem)
+	return s_B3;
+}
+
+State B3v() {
+	SET_KEYWORD(Deg)
+	return s_B3;
+}
+
 State C1a() {
 	r_number = r_symbolic_token.value;
 	return s_C1;
@@ -762,7 +787,7 @@ State P1() {
 	r_constant_table_index = r_program.add_pol_constant(r_polynomial);
 	ADD_TOKEN(Constant, r_constant_table_index)
 
-	return s_A1;
+	return s_H1;
 }
 
 State P2() {
@@ -854,7 +879,10 @@ inline void complete_detection_table() {
 	detection_table[0].alt = 20;
 	detection_table[13].alt = 47;
 	detection_table[17].alt = 43;
+	detection_table[18].alt = 67;
 	detection_table[23].alt = 49;
+	detection_table[34].alt = 58;
+	detection_table[58].alt = 70;
 	detection_table[43].alt = 51;
 
 	detection_table[1].procedure = B3a;  // let
@@ -875,6 +903,10 @@ inline void complete_detection_table() {
 	detection_table[48].procedure = B3p; // int
 	detection_table[50].procedure = B3q; // pol
 	detection_table[52].procedure = B3r; // end
+	detection_table[56].procedure = B3s; // value
+	detection_table[65].procedure = B3t; // derivative
+	detection_table[68].procedure = B3u; // elem
+	detection_table[70].procedure = B3v; // deg
 }
 
 inline void fill_init_vector() {
@@ -902,7 +934,7 @@ inline void fill_init_vector() {
 	init_vector['s' - 'a'] = 25;
 	init_vector['t' - 'a'] = 4;
 	// u
-	// v
+	init_vector['v' - 'a'] = 53;
 	// w
 	// x
 	// y
@@ -974,6 +1006,10 @@ inline void fill_procedure_table() {
  	PTSET(s_G3, Space, {E1bg}) PTSET(s_G3, EndOfFileSymbol, IL(ERR, EXIT))
 	/*PTSET(s_G4, Space, )*/   PTSET(s_G4, EndOfFileSymbol, IL(ERR, EXIT))
 
+	/*PTSET(s_H1, Letter, )*/     /*PTSET(s_H1, Digit, )*/       /*PTSET(s_H1, Dot, )*/               PTSET(s_H1, S_Comma, {A1a})       PTSET(s_H1, S_Semicol, {A1b})
+    PTSET(s_H1, S_Colon, {A1c})   PTSET(s_H1, Arithmetic, {A1d}) PTSET(s_H1, Compare, {D1a})          PTSET(s_H1, LRoundBracket, {A1e}) PTSET(s_H1, RRoundBracket, {A1f})
+    /*PTSET(s_H1, SqBracket, )*/  PTSET(s_H1, Space, {A1g})      PTSET(s_H1, EndOfFileSymbol, {EXIT}) /*PTSET(s_H1, Other, )*/
+
 	for (int i = 0; i < SYMBOLIC_COUNT; ++i) {
 		PTSET(s_Err1, i, {ERR1})
 	}
@@ -1034,10 +1070,21 @@ void run_lexer(const char* filename) {
 	}
 }
 
-int main() {
-	run_lexer("input1");
+int main(int argc, char* argv[]) {
+	/*setup_lexer();
+	for (int i = 0; i < DT_SIZE; ++i) {
+		std::cout << i << ' ' << detection_table[i] << std::endl;
+	}*/
 
-	std::ofstream out("tokens");
+	if (argc < 2) {
+		std::cout << "No input file..." << std::endl;
+		return 1;
+	}
+
+	char* filename = argv[1];
+	run_lexer(filename);
+
+	std::ofstream out(std::string("tokens") + std::string("_") + std::string(filename));
 	r_program.print_tokens(out);
 	out << "\n\n\n";
 	r_program.print_id_table(out);

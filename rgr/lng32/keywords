@@ -16,3 +16,7 @@ error
 int
 pol
 end
+value
+derivative
+elem
+deg
