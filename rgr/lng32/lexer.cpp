@@ -28,7 +28,7 @@ enum LngTokenClass { Keyword, TypeKeyword, Identifier, Constant, Comma, Semicol,
 
 // перечисление ключевых слов
 //
-enum Keywords { Let, For, To, Adding, Next, If, Goto, Else, Load, Put, Switch, Case, Default, Break, Error, End, Value, Derivative, Elem, Deg };
+enum Keywords { Let, For, To, Adding, Next, If, Goto, Else, Load, Put, Switch, Case, Default, Break, Error, End, Value, Derivative, Coeff, Deg };
 
 // перечисление ключевых слов, обозначающих тип
 //
@@ -309,7 +309,7 @@ public:
                           case End:        os << "end"; break;
                           case Value:      os << "value"; break;
                           case Derivative: os << "derivative"; break;
-                          case Elem:       os << "elem"; break;
+                          case Coeff:      os << "coeff"; break;
                           case Deg:        os << "deg"; break;
 	                      }
 	                      break;
@@ -438,7 +438,7 @@ std::ostream& operator <<(std::ostream& os, const DetectionTableLine& DTL) {
 }
 
 // таблица обнаружений
-#define DT_SIZE 71
+#define DT_SIZE 72
 DetectionTableLine detection_table[DT_SIZE] = { 0 };
 int init_vector[26];
 
@@ -617,7 +617,7 @@ State B3t() {
 }
 
 State B3u() {
-	SET_KEYWORD(Elem)
+	SET_KEYWORD(Coeff)
 	return s_B3;
 }
 
@@ -879,10 +879,10 @@ inline void complete_detection_table() {
 	detection_table[0].alt = 20;
 	detection_table[13].alt = 47;
 	detection_table[17].alt = 43;
-	detection_table[18].alt = 67;
 	detection_table[23].alt = 49;
+	detection_table[30].alt = 66;
 	detection_table[34].alt = 58;
-	detection_table[58].alt = 70;
+	detection_table[58].alt = 71;
 	detection_table[43].alt = 51;
 
 	detection_table[1].procedure = B3a;  // let
@@ -905,8 +905,8 @@ inline void complete_detection_table() {
 	detection_table[52].procedure = B3r; // end
 	detection_table[56].procedure = B3s; // value
 	detection_table[65].procedure = B3t; // derivative
-	detection_table[68].procedure = B3u; // elem
-	detection_table[70].procedure = B3v; // deg
+	detection_table[69].procedure = B3u; // coeff
+	detection_table[71].procedure = B3v; // deg
 }
 
 inline void fill_init_vector() {
@@ -1084,7 +1084,7 @@ int main(int argc, char* argv[]) {
 	char* filename = argv[1];
 	run_lexer(filename);
 
-	std::ofstream out(std::string("tokens") + std::string("_") + std::string(filename));
+	std::ofstream out(std::string("tokens_") + std::string(filename));
 	r_program.print_tokens(out);
 	out << "\n\n\n";
 	r_program.print_id_table(out);

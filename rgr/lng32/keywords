@@ -18,5 +18,5 @@ pol
 end
 value
 derivative
-elem
+coeff
 deg
