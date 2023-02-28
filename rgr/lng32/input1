@@ -4,7 +4,7 @@ let X = Y = Z = (2+3) * 4 / 56 %(28-5);
 
 P1, P2 : pol; 
 
-LLL for I = 2*5 to 100 addding 25
+LLL for I = 2*5 to 100 adding 25
 		put(Y*X);
 		Y = Y+ X;
 next LLL

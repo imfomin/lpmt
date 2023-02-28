@@ -314,8 +314,8 @@ public:
 	                      }
 	                      break;
 	        case TypeKeyword: switch (token.value) {
-                              case Int: os << "int"; break;
-                              case Pol: os << "pol"; break;
+                              case Int: os << "<TYPE: int>"; break;
+                              case Pol: os << "<TYPE: pol>"; break;
 	                          } break;
 	        case Identifier: os << "<V " << token.value << ": " << m_id_table[token.value] << ">"; break;
 	        case Constant:   os << "<C " << token.value << ": " << m_constant_table[token.value] << ">"; break;
@@ -387,6 +387,7 @@ enum State { s_A1,
              s_F1, s_F2, s_F3,
              s_G1, s_G2, s_G3, s_G4,
              s_H1,
+             s_J1,
              s_Err1,
              s_Stop, s_Tech, 
             };
@@ -469,7 +470,7 @@ State A1c() {
 }
 
 State A1d() {
-	ADD_TOKEN(ArithmeticOperator, r_symbolic_token.value)
+	ADD_TOKEN(ArithmeticOperator, r_token_value)
 	return s_A1;
 }
 
@@ -764,6 +765,11 @@ State G4() {
 	return s_G4;
 }
 
+State J1a() {
+	r_token_value = r_symbolic_token.value;
+	return s_J1;
+}
+
 State M1() {
 	r_string += r_symbolic_token.value;
 	while (true) {
@@ -962,13 +968,13 @@ inline void fill_procedure_table() {
 	PTSET(s_D1, Letter, IL(CM1, B1a)) PTSET(s_D1, Digit, IL(CM1, C1a)) PTSET(s_D1, Dot, IL(CM1, ERR)) PTSET(s_D1, S_Comma, IL(CM1, A1a)) PTSET(s_D1, S_Semicol, IL(CM1, A1b))
 	PTSET(s_D2, Letter, IL(CM2, B1a)) PTSET(s_D2, Digit, IL(CM2, C1a)) PTSET(s_D2, Dot, IL(CM2, ERR)) PTSET(s_D2, S_Comma, IL(CM2, A1a)) PTSET(s_D2, S_Semicol, IL(CM2, A1b))
 
-	PTSET(s_A1, S_Colon, {A1c})        PTSET(s_A1, Arithmetic, {A1d})        PTSET(s_A1, Compare, {D1a})       PTSET(s_A1, LRoundBracket, {A1e})        PTSET(s_A1, RRoundBracket, {A1f})
-	PTSET(s_B1, S_Colon, IL(W, A1c))   PTSET(s_B1, Arithmetic, IL(W, A1d))   PTSET(s_B1, Compare, IL(W, D1a))  PTSET(s_B1, LRoundBracket, IL(W, A1e))   PTSET(s_B1, RRoundBracket, IL(W, A1f))
-	PTSET(s_B2, S_Colon, IL(W, A1c))   PTSET(s_B2, Arithmetic, IL(W, A1d))   PTSET(s_B2, Compare, IL(W, D1a))  PTSET(s_B2, LRoundBracket, IL(W, A1e))   PTSET(s_B2, RRoundBracket, IL(W, A1f))
-	PTSET(s_B3, S_Colon, IL(KW, A1c))  PTSET(s_B3, Arithmetic, IL(KW, A1d))  PTSET(s_B3, Compare, IL(KW, D1a)) PTSET(s_B3, LRoundBracket, IL(KW, A1e))  PTSET(s_B3, RRoundBracket, IL(KW, A1f))
-	PTSET(s_C1, S_Colon, IL(N, A1c))   PTSET(s_C1, Arithmetic, IL(N, A1d))   PTSET(s_C1, Compare, IL(N, D1a))  PTSET(s_C1, LRoundBracket, IL(N, A1e))   PTSET(s_C1, RRoundBracket, IL(N, A1f))
-	PTSET(s_D1, S_Colon, IL(CM1, A1c)) PTSET(s_D1, Arithmetic, IL(CM1, A1d)) PTSET(s_D1, Compare, {D2a})       PTSET(s_D1, LRoundBracket, IL(CM1, A1e)) PTSET(s_D1, RRoundBracket, IL(CM1, A1f))
-	PTSET(s_D2, S_Colon, IL(CM2, A1c)) PTSET(s_D2, Arithmetic, IL(CM2, A1d)) PTSET(s_D2, Compare, {CM3})       PTSET(s_D2, LRoundBracket, IL(CM2, A1e)) PTSET(s_D2, RRoundBracket, IL(CM2, A1f))
+	PTSET(s_A1, S_Colon, {A1c})        PTSET(s_A1, Arithmetic, {J1a})       PTSET(s_A1, Compare, {D1a})       PTSET(s_A1, LRoundBracket, {A1e})        PTSET(s_A1, RRoundBracket, {A1f})
+	PTSET(s_B1, S_Colon, IL(W, A1c))   PTSET(s_B1, Arithmetic, IL(W, J1a))  PTSET(s_B1, Compare, IL(W, D1a))  PTSET(s_B1, LRoundBracket, IL(W, A1e))   PTSET(s_B1, RRoundBracket, IL(W, A1f))
+	PTSET(s_B2, S_Colon, IL(W, A1c))   PTSET(s_B2, Arithmetic, IL(W, J1a))  PTSET(s_B2, Compare, IL(W, D1a))  PTSET(s_B2, LRoundBracket, IL(W, A1e))   PTSET(s_B2, RRoundBracket, IL(W, A1f))
+	PTSET(s_B3, S_Colon, IL(KW, A1c))  PTSET(s_B3, Arithmetic, IL(KW, J1a)) PTSET(s_B3, Compare, IL(KW, D1a)) PTSET(s_B3, LRoundBracket, IL(KW, A1e))  PTSET(s_B3, RRoundBracket, IL(KW, A1f))
+	PTSET(s_C1, S_Colon, IL(N, A1c))   PTSET(s_C1, Arithmetic, IL(N, J1a))  PTSET(s_C1, Compare, IL(N, D1a))  PTSET(s_C1, LRoundBracket, IL(N, A1e))   PTSET(s_C1, RRoundBracket, IL(N, A1f))
+	PTSET(s_D1, S_Colon, IL(CM1, A1c)) /*PTSET(s_D1, Arithmetic, )*/        PTSET(s_D1, Compare, {D2a})       PTSET(s_D1, LRoundBracket, IL(CM1, A1e)) PTSET(s_D1, RRoundBracket, IL(CM1, A1f))
+	PTSET(s_D2, S_Colon, IL(CM2, A1c)) /*PTSET(s_D2, Arithmetic, )*/        PTSET(s_D2, Compare, {CM3})       PTSET(s_D2, LRoundBracket, IL(CM2, A1e)) PTSET(s_D2, RRoundBracket, IL(CM2, A1f))
 
 	PTSET(s_A1, SqBracket, {E1a})            PTSET(s_A1, Space, {A1g})        PTSET(s_A1, EndOfFileSymbol, {EXIT})        /*PTSET(s_A1, Other, )*/
 	PTSET(s_B1, SqBracket, IL(W, ERR, E1a))  PTSET(s_B1, Space, IL(W, A1g))   PTSET(s_B1, EndOfFileSymbol, IL(W, EXIT))   /*PTSET(s_B1, Other, )*/
@@ -1009,6 +1015,10 @@ inline void fill_procedure_table() {
 	/*PTSET(s_H1, Letter, )*/     /*PTSET(s_H1, Digit, )*/       /*PTSET(s_H1, Dot, )*/               PTSET(s_H1, S_Comma, {A1a})       PTSET(s_H1, S_Semicol, {A1b})
     PTSET(s_H1, S_Colon, {A1c})   PTSET(s_H1, Arithmetic, {A1d}) PTSET(s_H1, Compare, {D1a})          PTSET(s_H1, LRoundBracket, {A1e}) PTSET(s_H1, RRoundBracket, {A1f})
     /*PTSET(s_H1, SqBracket, )*/  PTSET(s_H1, Space, {A1g})      PTSET(s_H1, EndOfFileSymbol, {EXIT}) /*PTSET(s_H1, Other, )*/
+
+	PTSET(s_J1, Letter, IL(A1d, B1a))    PTSET(s_J1, Digit, IL(A1d, C1a)) /*PTSET(s_J1, Dot, )*/                      PTSET(s_J1, S_Comma, IL(A1d, A1a))       PTSET(s_J1, S_Semicol, IL(A1d, A1b))
+    PTSET(s_J1, S_Colon, IL(A1d, A1c))   /*PTSET(s_J1, Arithmetic, )*/    /*PTSET(s_J1, Compare, )*/                  PTSET(s_J1, LRoundBracket, IL(A1d, A1e)) PTSET(s_J1, RRoundBracket, IL(A1d, A1f))
+    PTSET(s_J1, SqBracket, IL(A1d, E1a)) PTSET(s_J1, Space, IL(A1d, A1g)) PTSET(s_J1, EndOfFileSymbol, IL(A1d, EXIT)) /*PTSET(s_J1, Other, )*/
 
 	for (int i = 0; i < SYMBOLIC_COUNT; ++i) {
 		PTSET(s_Err1, i, {ERR1})
